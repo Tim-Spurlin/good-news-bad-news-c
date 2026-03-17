@@ -114,3 +114,4 @@ npm run lint       # currently needs an eslint.config.js (see Troubleshooting)
 ---
 
 MIT © 2026 • Cyber-classified reader for Good vs Bad news
+
