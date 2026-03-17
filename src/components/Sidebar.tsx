@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Newspaper, X } from '@phosphor-icons/react'
+import { Plus, Newspaper, X, Sliders } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -13,9 +13,10 @@ interface SidebarProps {
   onTopicSelect: (topicId: string) => void
   onTopicAdd: (name: string) => void
   onTopicRemove: (topicId: string) => void
+  onTopicSettings: (topicId: string) => void
 }
 
-export function Sidebar({ topics, activeTopic, onTopicSelect, onTopicAdd, onTopicRemove }: SidebarProps) {
+export function Sidebar({ topics, activeTopic, onTopicSelect, onTopicAdd, onTopicRemove, onTopicSettings }: SidebarProps) {
   const [isAdding, setIsAdding] = useState(false)
   const [newTopicName, setNewTopicName] = useState('')
 
@@ -59,17 +60,30 @@ export function Sidebar({ topics, activeTopic, onTopicSelect, onTopicAdd, onTopi
                   </Badge>
                 </div>
               </div>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onTopicRemove(topic.id)
-                }}
-              >
-                <X size={14} />
-              </Button>
+              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-6 w-6 p-0 hover:bg-accent/10 hover:text-accent"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onTopicSettings(topic.id)
+                  }}
+                >
+                  <Sliders size={14} />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onTopicRemove(topic.id)
+                  }}
+                >
+                  <X size={14} />
+                </Button>
+              </div>
             </div>
           ))}
         </div>

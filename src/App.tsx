@@ -1,10 +1,12 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Toaster } from '@/components/ui/sonner'
 import { Sidebar } from '@/components/Sidebar'
 import { Header } from '@/components/Header'
 import { NewsFeed } from '@/components/NewsFeed'
 import { SettingsDialog } from '@/components/SettingsDialog'
+import { TopicSettingsDialog } from '@/components/TopicSettingsDialog'
+import { generateMockFeed } from '@/lib/mockFeedGenerator'
 import type { NewsArticle, Topic, ClassificationLabel, AppSettings, ClassificationStats } from '@/types'
 import { toast } from 'sonner'
 
@@ -25,12 +27,37 @@ function App() {
   )
   const [activeFilter, setActiveFilter] = useState<ClassificationLabel>('good')
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [topicSettingsOpen, setTopicSettingsOpen] = useState(false)
+  const [selectedTopicForSettings, setSelectedTopicForSettings] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (topics && topics.length > 0 && !activeTopicId) {
+      setActiveTopicId(topics[0].id)
+    }
+  }, [topics, activeTopicId])
+
+  useEffect(() => {
+    setTopics((current) =>
+      (current || []).map(topic => ({
+        ...topic,
+        articleCount: (articles || []).filter(a => a.topic === topic.id).length
+      }))
+    )
+  }, [articles, setTopics])
+
+  const activeTopic = useMemo(() => 
+    topics?.find(t => t.id === activeTopicId) || null,
+    [topics, activeTopicId]
+  )
 
   const handleTopicAdd = (name: string) => {
     const newTopic: Topic = {
       id: `topic-${Date.now()}`,
       name,
-      articleCount: 0
+      articleCount: 0,
+      goodNewsPercentage: 50,
+      showGoodNews: true,
+      showBadNews: true
     }
     setTopics((current) => [...(current || []), newTopic])
     setActiveTopicId(newTopic.id)
@@ -50,6 +77,35 @@ function App() {
     if (topic) {
       toast.success(`Topic "${topic.name}" removed`)
     }
+  }
+
+  const handleTopicSettings = (topicId: string) => {
+    setSelectedTopicForSettings(topicId)
+    setTopicSettingsOpen(true)
+  }
+
+  const handleTopicSettingsSave = (updates: Partial<Topic>) => {
+    if (!selectedTopicForSettings) return
+    
+    setTopics((current) =>
+      (current || []).map(topic =>
+        topic.id === selectedTopicForSettings
+          ? { ...topic, ...updates }
+          : topic
+      )
+    )
+    toast.success('Topic settings updated')
+  }
+
+  const handleGenerateFeed = () => {
+    if (!activeTopicId || !activeTopic) {
+      toast.error('No active topic selected')
+      return
+    }
+    
+    const newArticles = generateMockFeed(activeTopicId, 20, activeTopic.goodNewsPercentage)
+    setArticles((current) => [...newArticles, ...(current || [])])
+    toast.success(`Generated ${newArticles.length} mock articles`)
   }
 
   const handleReclassify = (articleId: string, newLabel: ClassificationLabel) => {
@@ -99,6 +155,7 @@ function App() {
           onTopicSelect={setActiveTopicId}
           onTopicAdd={handleTopicAdd}
           onTopicRemove={handleTopicRemove}
+          onTopicSettings={handleTopicSettings}
         />
         
         <main className="flex-1 overflow-hidden">
@@ -109,6 +166,8 @@ function App() {
                 activeFilter={activeFilter}
                 onFilterChange={setActiveFilter}
                 onReclassify={handleReclassify}
+                topic={activeTopic}
+                onGenerateFeed={handleGenerateFeed}
               />
             </div>
           ) : (
@@ -141,6 +200,13 @@ function App() {
           refreshInterval: 15
         }}
         onSave={handleSettingsSave}
+      />
+
+      <TopicSettingsDialog
+        open={topicSettingsOpen}
+        onOpenChange={setTopicSettingsOpen}
+        topic={topics?.find(t => t.id === selectedTopicForSettings) || null}
+        onSave={handleTopicSettingsSave}
       />
 
       <Toaster 

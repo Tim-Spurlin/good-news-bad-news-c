@@ -16,6 +16,9 @@ export interface Topic {
   id: string;
   name: string;
   articleCount: number;
+  goodNewsPercentage: number;
+  showGoodNews: boolean;
+  showBadNews: boolean;
 }
 
 export interface ClassificationStats {
