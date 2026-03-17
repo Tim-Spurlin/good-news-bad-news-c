@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="360" viewBox="0 0 900 360" role="img" aria-label="Animated flow of articles being classified into good and bad news lanes">
+  <defs>
+    <linearGradient id="grid" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#0b1020"/>
+    </linearGradient>
+    <linearGradient id="laneGood" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0ea5e9" />
+    </linearGradient>
+    <linearGradient id="laneBad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1e1b4b" />
+      <stop offset="100%" stop-color="#f43f5e" />
+    </linearGradient>
+    <linearGradient id="pulse" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#67e8f9" />
+      <stop offset="100%" stop-color="#22d3ee" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="900" height="360" fill="url(#grid)"/>
+
+  <!-- Grid lines -->
+  <g stroke="#1f2937" stroke-width="0.5" opacity="0.5">
+    <pattern id="gridPattern" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M24 0H0V24" fill="none" stroke="#1f2937" stroke-width="0.5"/>
+    </pattern>
+    <rect width="900" height="360" fill="url(#gridPattern)" />
+  </g>
+
+  <!-- Title -->
+  <text x="450" y="44" text-anchor="middle" fill="#e2e8f0" font-family="Rajdhani, 'Segoe UI', sans-serif" font-size="20" letter-spacing="1.5">
+    Live Classification Flow
+  </text>
+  <text x="450" y="64" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono, monospace" font-size="12" letter-spacing="2">
+    Good ↔ Bad reassignment with animated confidence pulse
+  </text>
+
+  <!-- Ingress column -->
+  <g>
+    <rect x="60" y="90" width="220" height="200" rx="16" fill="#0f172a" stroke="#22d3ee" stroke-width="1.2" opacity="0.8"/>
+    <text x="170" y="116" text-anchor="middle" fill="#e2e8f0" font-size="14" font-family="Rajdhani, 'Segoe UI', sans-serif" letter-spacing="1">Raw Ingestion</text>
+    <text x="170" y="136" text-anchor="middle" fill="#94a3b8" font-size="12" font-family="Inter, sans-serif">topic feed + keywords</text>
+    <g fill="#0ea5e9">
+      <circle cx="120" cy="170" r="6"/>
+      <circle cx="170" cy="190" r="6"/>
+      <circle cx="220" cy="210" r="6"/>
+    </g>
+  </g>
+
+  <!-- Good lane -->
+  <g filter="url(#glow)">
+    <rect x="350" y="90" width="210" height="200" rx="18" fill="url(#laneGood)" opacity="0.9"/>
+    <text x="455" y="116" text-anchor="middle" fill="#e0f2fe" font-size="14" font-family="Rajdhani, 'Segoe UI', sans-serif" letter-spacing="1">Good News Lane</text>
+    <text x="455" y="136" text-anchor="middle" fill="#bfdbfe" font-size="12" font-family="Inter, sans-serif">positive sentiment</text>
+    <g fill="#e0f2fe" opacity="0.9">
+      <rect x="370" y="160" width="60" height="16" rx="8"/>
+      <rect x="440" y="186" width="70" height="16" rx="8"/>
+      <rect x="390" y="214" width="90" height="16" rx="8"/>
+    </g>
+  </g>
+
+  <!-- Bad lane -->
+  <g filter="url(#glow)">
+    <rect x="640" y="90" width="210" height="200" rx="18" fill="url(#laneBad)" opacity="0.9"/>
+    <text x="745" y="116" text-anchor="middle" fill="#fecdd3" font-size="14" font-family="Rajdhani, 'Segoe UI', sans-serif" letter-spacing="1">Bad News Lane</text>
+    <text x="745" y="136" text-anchor="middle" fill="#fecdd3" font-size="12" font-family="Inter, sans-serif">negative sentiment</text>
+    <g fill="#fecdd3" opacity="0.9">
+      <rect x="660" y="162" width="80" height="16" rx="8"/>
+      <rect x="720" y="188" width="90" height="16" rx="8"/>
+      <rect x="700" y="216" width="70" height="16" rx="8"/>
+    </g>
+  </g>
+
+  <!-- Connecting lines -->
+  <g stroke="#22d3ee" stroke-width="2" stroke-linecap="round" opacity="0.9">
+    <path d="M280 170 C320 170 320 170 350 170" fill="none"/>
+    <path d="M280 200 C320 200 320 200 350 200" fill="none"/>
+    <path d="M280 230 C320 230 320 230 350 230" fill="none"/>
+  </g>
+
+  <!-- Reassignment arrows -->
+  <g stroke="#a5b4fc" stroke-width="2" stroke-linecap="round" opacity="0.8">
+    <path d="M560 180 C600 180 600 180 640 180" fill="none"/>
+    <path d="M560 210 C600 210 600 210 640 210" fill="none"/>
+  </g>
+  <text x="600" y="166" text-anchor="middle" fill="#cbd5e1" font-size="11" font-family="JetBrains Mono, monospace">reassign</text>
+
+  <!-- Pulsing confidence marker -->
+  <g>
+    <circle cx="455" cy="270" r="10" fill="url(#pulse)" opacity="0.9">
+      <animate attributeName="r" values="10;18;10" dur="2.8s" repeatCount="indefinite" />
+      <animate attributeName="opacity" values="0.9;0.1;0.9" dur="2.8s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="745" cy="270" r="10" fill="#f43f5e" opacity="0.85">
+      <animate attributeName="r" values="10;18;10" dur="2.8s" begin="0.6s" repeatCount="indefinite" />
+      <animate attributeName="opacity" values="0.85;0.1;0.85" dur="2.8s" begin="0.6s" repeatCount="indefinite" />
+    </circle>
+  </g>
+
+  <!-- Scanning beam -->
+  <rect x="340" y="120" width="530" height="4" fill="#22d3ee" opacity="0.75">
+    <animate attributeName="y" values="120;270;120" dur="4s" repeatCount="indefinite" />
+    <animate attributeName="opacity" values="0.2;0.75;0.2" dur="4s" repeatCount="indefinite" />
+  </rect>
+
+  <!-- Data packets -->
+  <g fill="#67e8f9" opacity="0.95">
+    <rect x="300" y="162" width="12" height="6" rx="3">
+      <animate attributeName="x" values="300;610" dur="3.2s" repeatCount="indefinite" />
+    </rect>
+    <rect x="300" y="192" width="12" height="6" rx="3">
+      <animate attributeName="x" values="300;610" dur="3s" begin="0.8s" repeatCount="indefinite" />
+    </rect>
+    <rect x="300" y="222" width="12" height="6" rx="3">
+      <animate attributeName="x" values="300;610" dur="3.4s" begin="1.2s" repeatCount="indefinite" />
+    </rect>
+  </g>
+
+  <!-- Legend -->
+  <g>
+    <rect x="60" y="310" width="780" height="30" rx="10" fill="#0b1220" opacity="0.85" stroke="#1f2937"/>
+    <text x="90" y="330" fill="#22d3ee" font-family="JetBrains Mono, monospace" font-size="11">glow = high confidence</text>
+    <text x="290" y="330" fill="#e0f2fe" font-family="JetBrains Mono, monospace" font-size="11">cyan lane = good</text>
+    <text x="500" y="330" fill="#fecdd3" font-family="JetBrains Mono, monospace" font-size="11">magenta lane = bad</text>
+    <text x="720" y="330" fill="#cbd5e1" font-family="JetBrains Mono, monospace" font-size="11">beam = live scan</text>
+  </g>
+</svg>
