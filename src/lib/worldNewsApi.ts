@@ -124,7 +124,9 @@ export async function convertToNewsArticle(
     topic: topicId,
     url: worldNewsArticle.url,
     imageUrl,
-    imageAlt
+    imageAlt,
+    sourceCountry: worldNewsArticle.source_country,
+    publishDate: worldNewsArticle.publish_date
   }
 }
 

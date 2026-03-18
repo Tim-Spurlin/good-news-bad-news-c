@@ -12,6 +12,8 @@ export interface NewsArticle {
   url?: string;
   imageUrl?: string;
   imageAlt?: string;
+  sourceCountry?: string;
+  publishDate?: string;
 }
 
 export interface Topic {
@@ -38,4 +40,12 @@ export interface AppSettings {
   learningRate: number;
   autoRefresh: boolean;
   refreshInterval: number;
+}
+
+export interface NewsFilters {
+  countries: string[];
+  dateRange: {
+    start: Date | null;
+    end: Date | null;
+  };
 }

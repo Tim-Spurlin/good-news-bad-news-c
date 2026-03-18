@@ -1,8 +1,10 @@
+import { useMemo, useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import { ArticleCard } from './ArticleCard'
-import type { NewsArticle, ClassificationLabel, Topic } from '@/types'
+import { FilterPanel } from './FilterPanel'
+import type { NewsArticle, ClassificationLabel, Topic, NewsFilters } from '@/types'
 import { Newspaper, SmileyXEyes, Sparkle } from '@phosphor-icons/react'
 
 interface NewsFeedProps {
@@ -15,8 +17,57 @@ interface NewsFeedProps {
 }
 
 export function NewsFeed({ articles, activeFilter, onFilterChange, onReclassify, topic, onGenerateFeed }: NewsFeedProps) {
-  const filteredGoodArticles = articles.filter(a => a.classification === 'good' && (topic?.showGoodNews ?? true))
-  const filteredBadArticles = articles.filter(a => a.classification === 'bad' && (topic?.showBadNews ?? true))
+  const [filters, setFilters] = useState<NewsFilters>({
+    countries: [],
+    dateRange: { start: null, end: null }
+  })
+
+  const availableCountries = useMemo(() => {
+    const countries = new Set<string>()
+    articles.forEach(article => {
+      if (article.sourceCountry) {
+        countries.add(article.sourceCountry)
+      }
+    })
+    return Array.from(countries).sort()
+  }, [articles])
+
+  const applyFilters = useMemo(() => {
+    return (articleList: NewsArticle[]) => {
+      let filtered = articleList
+
+      if (filters.countries.length > 0) {
+        filtered = filtered.filter(article => 
+          article.sourceCountry && filters.countries.includes(article.sourceCountry)
+        )
+      }
+
+      if (filters.dateRange.start || filters.dateRange.end) {
+        filtered = filtered.filter(article => {
+          const articleDate = new Date(article.timestamp)
+          if (filters.dateRange.start && articleDate < filters.dateRange.start) {
+            return false
+          }
+          if (filters.dateRange.end && articleDate > filters.dateRange.end) {
+            return false
+          }
+          return true
+        })
+      }
+
+      return filtered
+    }
+  }, [filters])
+
+  const filteredGoodArticles = useMemo(() => {
+    const goodArticles = articles.filter(a => a.classification === 'good' && (topic?.showGoodNews ?? true))
+    return applyFilters(goodArticles)
+  }, [articles, topic, applyFilters])
+
+  const filteredBadArticles = useMemo(() => {
+    const badArticles = articles.filter(a => a.classification === 'bad' && (topic?.showBadNews ?? true))
+    return applyFilters(badArticles)
+  }, [articles, topic, applyFilters])
 
   const EmptyState = ({ type }: { type: ClassificationLabel }) => (
     <div className="flex flex-col items-center justify-center h-[500px] text-center">
@@ -72,15 +123,23 @@ export function NewsFeed({ articles, activeFilter, onFilterChange, onReclassify,
           </TabsList>
         </Tabs>
         
-        <Button
-          onClick={onGenerateFeed}
-          size="sm"
-          variant="outline"
-          className="ml-4 hover:bg-accent/10 hover:text-accent hover:border-accent"
-        >
-          <Sparkle size={16} weight="duotone" className="mr-2" />
-          Generate Feed
-        </Button>
+        <div className="flex items-center gap-2 ml-4">
+          <FilterPanel
+            filters={filters}
+            onFiltersChange={setFilters}
+            availableCountries={availableCountries}
+          />
+          
+          <Button
+            onClick={onGenerateFeed}
+            size="sm"
+            variant="outline"
+            className="hover:bg-accent/10 hover:text-accent hover:border-accent"
+          >
+            <Sparkle size={16} weight="duotone" className="mr-2" />
+            Generate Feed
+          </Button>
+        </div>
       </div>
 
       <Tabs value={activeFilter} onValueChange={(v) => onFilterChange(v as ClassificationLabel)} className="flex-1">

@@ -60,6 +60,8 @@ const sources = [
   'Community Voice'
 ]
 
+const countries = ['us', 'gb', 'ca', 'au', 'de', 'fr', 'it', 'es', 'jp', 'cn']
+
 const goodBodies = [
   'Researchers have made significant progress that could benefit millions of people worldwide. The breakthrough came after years of dedicated work and collaboration.',
   'The initiative has exceeded all expectations, bringing together diverse groups working toward a common goal. Community leaders expressed gratitude and optimism.',
@@ -88,19 +90,22 @@ export async function generateMockArticleWithImage(topicId: string, classificati
   const body = randomElement(bodies)
   
   const imageResult = await extractRelevantImage(title, body)
+  const timestamp = Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000)
   
   return {
     id: `article-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     title,
     source: randomElement(sources),
-    timestamp: Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000),
+    timestamp,
     body,
     classification: isGood ? 'good' : 'bad',
     confidence: 0.65 + Math.random() * 0.3,
     topic: topicId,
     url: `https://example.com/article/${Date.now()}`,
     imageUrl: imageResult.url,
-    imageAlt: imageResult.alt
+    imageAlt: imageResult.alt,
+    sourceCountry: randomElement(countries),
+    publishDate: new Date(timestamp).toISOString()
   }
 }
 
@@ -110,17 +115,20 @@ export function generateMockArticle(topicId: string, classification?: Classifica
   const bodies = isGood ? goodBodies : badBodies
   const title = randomElement(titles)
   const body = randomElement(bodies)
+  const timestamp = Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000)
   
   return {
     id: `article-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     title,
     source: randomElement(sources),
-    timestamp: Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000),
+    timestamp,
     body,
     classification: isGood ? 'good' : 'bad',
     confidence: 0.65 + Math.random() * 0.3,
     topic: topicId,
-    url: `https://example.com/article/${Date.now()}`
+    url: `https://example.com/article/${Date.now()}`,
+    sourceCountry: randomElement(countries),
+    publishDate: new Date(timestamp).toISOString()
   }
 }
 
