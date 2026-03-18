@@ -1,4 +1,5 @@
 import type { NewsArticle, ClassificationLabel } from '@/types'
+import { extractRelevantImage } from './imageExtractor'
 
 const goodTitles = [
   'Scientists Discover Breakthrough Treatment for Common Disease',
@@ -79,22 +80,73 @@ function randomElement<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]
 }
 
+export async function generateMockArticleWithImage(topicId: string, classification?: ClassificationLabel): Promise<NewsArticle> {
+  const isGood = classification === 'good' || (classification === undefined && Math.random() > 0.5)
+  const titles = isGood ? goodTitles : badTitles
+  const bodies = isGood ? goodBodies : badBodies
+  const title = randomElement(titles)
+  const body = randomElement(bodies)
+  
+  const imageResult = await extractRelevantImage(title, body)
+  
+  return {
+    id: `article-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    title,
+    source: randomElement(sources),
+    timestamp: Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000),
+    body,
+    classification: isGood ? 'good' : 'bad',
+    confidence: 0.65 + Math.random() * 0.3,
+    topic: topicId,
+    url: `https://example.com/article/${Date.now()}`,
+    imageUrl: imageResult.url,
+    imageAlt: imageResult.alt
+  }
+}
+
 export function generateMockArticle(topicId: string, classification?: ClassificationLabel): NewsArticle {
   const isGood = classification === 'good' || (classification === undefined && Math.random() > 0.5)
   const titles = isGood ? goodTitles : badTitles
   const bodies = isGood ? goodBodies : badBodies
+  const title = randomElement(titles)
+  const body = randomElement(bodies)
   
   return {
     id: `article-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    title: randomElement(titles),
+    title,
     source: randomElement(sources),
     timestamp: Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000),
-    body: randomElement(bodies),
+    body,
     classification: isGood ? 'good' : 'bad',
     confidence: 0.65 + Math.random() * 0.3,
     topic: topicId,
     url: `https://example.com/article/${Date.now()}`
   }
+}
+
+export async function generateMockFeedWithImages(
+  topicId: string,
+  count: number,
+  goodPercentage: number = 50
+): Promise<NewsArticle[]> {
+  const articles: NewsArticle[] = []
+  const goodCount = Math.round((count * goodPercentage) / 100)
+  const badCount = count - goodCount
+  
+  const promises: Promise<NewsArticle>[] = []
+  
+  for (let i = 0; i < goodCount; i++) {
+    promises.push(generateMockArticleWithImage(topicId, 'good'))
+  }
+  
+  for (let i = 0; i < badCount; i++) {
+    promises.push(generateMockArticleWithImage(topicId, 'bad'))
+  }
+  
+  const results = await Promise.all(promises)
+  articles.push(...results)
+  
+  return articles.sort((a, b) => b.timestamp - a.timestamp)
 }
 
 export function generateMockFeed(

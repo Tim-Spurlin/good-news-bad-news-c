@@ -1,10 +1,11 @@
-import { ThumbsUp, ThumbsDown, Clock, Newspaper as NewspaperIcon } from '@phosphor-icons/react'
+import { ThumbsUp, ThumbsDown, Clock, Newspaper as NewspaperIcon, Image as ImageIcon } from '@phosphor-icons/react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import type { NewsArticle } from '@/types'
 import { cn } from '@/lib/utils'
+import { useState } from 'react'
 
 interface ArticleCardProps {
   article: NewsArticle
@@ -14,6 +15,7 @@ interface ArticleCardProps {
 export function ArticleCard({ article, onReclassify }: ArticleCardProps) {
   const isGood = article.classification === 'good'
   const confidencePercent = Math.round(article.confidence * 100)
+  const [imageError, setImageError] = useState(false)
 
   const formattedDate = new Date(article.timestamp).toLocaleDateString('en-US', {
     month: 'short',
@@ -24,6 +26,21 @@ export function ArticleCard({ article, onReclassify }: ArticleCardProps) {
 
   return (
     <Card className="steel-shimmer group hover:animate-shimmer border-border hover:border-accent transition-all duration-300 overflow-hidden">
+      {article.imageUrl && !imageError && (
+        <div className="relative h-48 w-full overflow-hidden bg-muted">
+          <img 
+            src={article.imageUrl} 
+            alt={article.imageAlt || article.title}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            onError={() => setImageError(true)}
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-card/90 to-transparent" />
+          <div className="absolute top-3 right-3 bg-card/80 backdrop-blur-sm rounded-md p-1.5">
+            <ImageIcon size={16} weight="duotone" className="text-accent" />
+          </div>
+        </div>
+      )}
       <div className="p-5">
         <div className="flex items-start gap-3 mb-3">
           <div className={cn(

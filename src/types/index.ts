@@ -10,6 +10,8 @@ export interface NewsArticle {
   confidence: number;
   topic: string;
   url?: string;
+  imageUrl?: string;
+  imageAlt?: string;
 }
 
 export interface Topic {

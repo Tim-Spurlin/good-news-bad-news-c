@@ -26,11 +26,18 @@ A sophisticated news classification interface that separates "Good News" from "B
 - Success criteria: Smooth tab transitions, cards load seamlessly, clear visual distinction between feeds
 
 **Article Card Interaction**
-- Functionality: Display article metadata (title, source, date, classification score) with reassignment controls
+- Functionality: Display article metadata (title, source, date, classification score, relevant image) with reassignment controls
 - Purpose: Allow users to review and correct AI classifications, improving prototype learning
 - Trigger: View article card, click reassignment button
-- Progression: Read article summary → Click "Mark as Good" or "Mark as Bad" → Instant visual feedback → Card updates classification
-- Success criteria: One-click reassignment, immediate UI update, toast confirmation
+- Progression: Read article summary with contextual image → Click "Mark as Good" or "Mark as Bad" → Instant visual feedback → Card updates classification
+- Success criteria: One-click reassignment, immediate UI update, toast confirmation, images load gracefully with fallback
+
+**Image Extraction & Display**
+- Functionality: Automatically extract and display relevant images for each news article from legal public sources
+- Purpose: Enhance visual appeal and provide contextual imagery that aids quick article comprehension
+- Trigger: Article ingestion/generation automatically fetches relevant images
+- Progression: Article created → Keywords extracted from title/body → Image API queried → Best match selected → Image displayed with fallback on error
+- Success criteria: Images relevant to content, legal sources only (Unsplash API or placeholder), graceful error handling, lazy loading for performance
 
 **Settings & Configuration Panel**
 - Functionality: Configure custom good/bad keywords, API credentials, learning rate, and system parameters
