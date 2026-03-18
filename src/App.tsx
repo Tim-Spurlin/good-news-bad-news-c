@@ -7,6 +7,7 @@ import { NewsFeed } from '@/components/NewsFeed'
 import { SettingsDialog } from '@/components/SettingsDialog'
 import { TopicSettingsDialog } from '@/components/TopicSettingsDialog'
 import { generateMockFeed } from '@/lib/mockFeedGenerator'
+import { fetchNewsForTopic, fetchLatestNews } from '@/lib/worldNewsApi'
 import type { NewsArticle, Topic, ClassificationLabel, AppSettings, ClassificationStats } from '@/types'
 import { toast } from 'sonner'
 
@@ -97,15 +98,36 @@ function App() {
     toast.success('Topic settings updated')
   }
 
-  const handleGenerateFeed = () => {
+  const handleGenerateFeed = async () => {
     if (!activeTopicId || !activeTopic) {
       toast.error('No active topic selected')
       return
     }
     
-    const newArticles = generateMockFeed(activeTopicId, 20, activeTopic.goodNewsPercentage)
-    setArticles((current) => [...newArticles, ...(current || [])])
-    toast.success(`Generated ${newArticles.length} mock articles`)
+    toast.loading('Fetching real news...', { id: 'fetch-news' })
+    
+    try {
+      const newArticles = await fetchNewsForTopic(
+        activeTopic.name,
+        activeTopicId,
+        20,
+        activeTopic.goodNewsPercentage
+      )
+      
+      if (newArticles.length > 0) {
+        setArticles((current) => [...newArticles, ...(current || [])])
+        toast.success(`Fetched ${newArticles.length} real articles from World News API`, { id: 'fetch-news' })
+      } else {
+        const mockArticles = generateMockFeed(activeTopicId, 20, activeTopic.goodNewsPercentage)
+        setArticles((current) => [...mockArticles, ...(current || [])])
+        toast.success(`Generated ${mockArticles.length} mock articles (no real news available)`, { id: 'fetch-news' })
+      }
+    } catch (error) {
+      console.error('Failed to fetch news:', error)
+      const mockArticles = generateMockFeed(activeTopicId, 20, activeTopic.goodNewsPercentage)
+      setArticles((current) => [...mockArticles, ...(current || [])])
+      toast.error('Failed to fetch real news, using mock data instead', { id: 'fetch-news' })
+    }
   }
 
   const handleReclassify = (articleId: string, newLabel: ClassificationLabel) => {

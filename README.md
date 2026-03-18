@@ -1,6 +1,6 @@
 # Good News / Bad News — Cyber-Classified Reader
 
-AI-powered news triage that separates **Good News** from **Bad News** with a cyber-metallic interface, ready for GPU-backed embeddings + RAG integration. Built with React, Vite, Tailwind, Radix UI, and shadcn.
+AI-powered news triage that separates **Good News** from **Bad News** with real-time World News API integration, automatic image extraction, and a cyber-metallic interface ready for GPU-backed embeddings + RAG integration. Built with React, Vite, Tailwind, Radix UI, and shadcn.
 
 <p align="center">
   <img src="./docs/cyber-classification.svg" width="880" alt="Animated classification flow showing Good vs Bad lanes with scanning beam" />
@@ -9,6 +9,7 @@ AI-powered news triage that separates **Good News** from **Bad News** with a cyb
 ## Table of Contents
 - [Why this project](#why-this-project)
 - [Feature tour](#feature-tour)
+- [World News API Integration](#world-news-api-integration)
 - [Animations \& visual system](#animations--visual-system)
 - [Architecture map](#architecture-map)
 - [Interaction flow](#interaction-flow)
@@ -19,9 +20,11 @@ AI-powered news triage that separates **Good News** from **Bad News** with a cyb
 - [Troubleshooting](#troubleshooting)
 
 ## Why this project
+- **Real-time news**: Fetches actual articles from World News API with sentiment classification and automatic image extraction.
 - **Cyber-ops aesthetic**: Deep metallic blues, electric cyan glows, animated scanlines, and data-dense panels.
 - **Built for correction**: Quick reassignment controls let humans fix AI sentiment calls.
-- **Ready for RAG**: Swap the mock generator for GPU-accelerated embeddings + vector search without touching the UI scaffolding.
+- **Intelligent fallbacks**: Gracefully handles API failures with mock data, missing images with Unsplash/placeholder generation.
+- **Ready for RAG**: Swap the API layer for GPU-accelerated embeddings + vector search without touching the UI scaffolding.
 
 ## Feature tour
 - **Topic Management Sidebar** — Add, remove, and switch categories with persistent selection.
@@ -29,6 +32,47 @@ AI-powered news triage that separates **Good News** from **Bad News** with a cyb
 - **Article Cards** — Title, source, timestamp, confidence meter, and one-click “Mark Good / Mark Bad.”
 - **Settings Dialogs** — Global and per-topic controls for keywords, API keys, and learning rates.
 - **Live Stats Bar** — Running totals, accuracy %, and drift indicators surfaced in the header.
+
+## World News API Integration
+
+### Configuration
+- **API Key**: `65b418bf959a461e945ff22a5508fb72`
+- **Account**: Tim.Spurlin@SaphyreSolutions.com  
+- **Base URL**: `https://api.worldnewsapi.com`
+
+### How It Works
+1. User creates a topic (e.g., "Technology")
+2. User sets good/bad news ratio (e.g., 60% good / 40% bad)
+3. App makes parallel API calls for positive and negative sentiment
+4. Articles are automatically classified using sentiment scores
+5. Images extracted from API or fetched from Unsplash
+6. All articles stored with persistence for offline viewing
+
+### Classification Logic
+```
+If API provides sentiment:
+  sentiment >= 0 → Good News (confidence based on sentiment strength)
+  sentiment < 0  → Bad News (confidence based on sentiment strength)
+  
+If no sentiment available (fallback):
+  Keyword analysis:
+    Positive keywords: breakthrough, success, innovation, achievement, etc.
+    Negative keywords: crisis, conflict, disaster, failure, etc.
+```
+
+### Error Handling
+- **Network failures** → Automatic fallback to mock data with toast notification
+- **Missing images** → Cascade through API → Unsplash → placeholder
+- **Rate limiting** → Graceful degradation with user feedback
+- **API errors** → Helpful toast messages with fallback behavior
+
+### Image Sources (in priority order)
+1. **World News API** - Primary source from article metadata
+2. **Unsplash API** - Keyword-based relevant imagery (if configured)
+3. **Placeholder Generation** - Contextual placeholders with article keywords
+
+For detailed API documentation, see [WORLD_NEWS_API_INTEGRATION.md](./WORLD_NEWS_API_INTEGRATION.md)
+
 
 ## Animations \& visual system
 - **Shimmered steel surfaces** using `steel-shimmer` gradients.

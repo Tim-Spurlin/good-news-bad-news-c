@@ -1,13 +1,13 @@
 # Planning Guide
 
-A sophisticated news classification interface that separates "Good News" from "Bad News" using AI-powered sentiment analysis, featuring a professional cyber-metallic aesthetic ready for backend integration with GPU-accelerated embeddings and RAG stack.
+A sophisticated news classification interface that separates "Good News" from "Bad News" using AI-powered sentiment analysis, featuring real-time World News API integration with automatic image extraction, and a professional cyber-metallic aesthetic ready for enhanced backend integration with GPU-accelerated embeddings and RAG stack.
 
 **Experience Qualities**: 
 1. **Futuristic Precision** - Every interaction feels like operating advanced cyber-intelligence software with crisp, responsive controls
 2. **Information Density** - Maximum data visibility without clutter, using cards, tabs, and virtualized scrolling
 3. **Technical Authority** - Professional metallic design that conveys serious analytical capability and trustworthiness
 
-**Complexity Level**: Light Application (multiple features with basic state) - A news reader with classification controls, topic management, and settings, designed as a functional prototype ready for backend integration with the full RAG pipeline.
+**Complexity Level**: Light Application (multiple features with basic state) - A news reader with classification controls, topic management, real-time World News API integration with automatic image extraction, settings, and complete fallback systems designed as a functional prototype ready for enhanced backend integration with the full RAG pipeline.
 
 ## Essential Features
 
@@ -33,11 +33,18 @@ A sophisticated news classification interface that separates "Good News" from "B
 - Success criteria: One-click reassignment, immediate UI update, toast confirmation, images load gracefully with fallback
 
 **Image Extraction & Display**
-- Functionality: Automatically extract and display relevant images for each news article from legal public sources
-- Purpose: Enhance visual appeal and provide contextual imagery that aids quick article comprehension
-- Trigger: Article ingestion/generation automatically fetches relevant images
-- Progression: Article created → Keywords extracted from title/body → Image API queried → Best match selected → Image displayed with fallback on error
-- Success criteria: Images relevant to content, legal sources only (Unsplash API or placeholder), graceful error handling, lazy loading for performance
+- Functionality: Automatically extract and display relevant images for each news article from legal public sources (World News API primary, Unsplash fallback, placeholder generation)
+- Purpose: Enhance visual appeal and provide contextual imagery that aids quick article comprehension while ensuring all images are legally sourced
+- Trigger: Article ingestion automatically fetches images from World News API, falls back to keyword-based Unsplash search, or generates contextual placeholder
+- Progression: Real news fetched → API provides image URL → Display with lazy loading → If missing, extract keywords → Query Unsplash → If unavailable, generate placeholder with article context
+- Success criteria: Images display for all articles, relevant to content, legal sources only (World News API > Unsplash API > generated placeholder), graceful error handling, lazy loading for performance, proper attribution
+
+**Real-Time News Integration**
+- Functionality: Fetch actual news articles from World News API with sentiment analysis, automatic classification, and image extraction
+- Purpose: Provide real, current news rather than mock data, with AI-powered sentiment classification and visual context
+- Trigger: User clicks "Generate Feed" button or creates new topic
+- Progression: Click generate → API call to World News API → Sentiment-based filtering → Parallel fetch for good/bad news → Classify articles → Extract images → Store in persistent state → Display in appropriate tabs
+- Success criteria: Real articles load within 3 seconds, respect good/bad percentage settings, include working images, fall back to mock data on API failure, toast notifications for feedback
 
 **Settings & Configuration Panel**
 - Functionality: Configure custom good/bad keywords, API credentials, learning rate, and system parameters
@@ -55,11 +62,14 @@ A sophisticated news classification interface that separates "Good News" from "B
 
 ## Edge Case Handling
 
-- **No Articles Available**: Display elegant empty state with illustration and prompt to add topics or wait for ingestion
-- **Network/API Failure**: Show connection status indicator, queue operations for retry, toast error notifications
+- **No Articles Available**: Display elegant empty state with illustration and prompt to add topics or generate feed
+- **Network/API Failure**: Show connection status indicator, automatic fallback to mock data, toast error notifications, seamless user experience
 - **Invalid Topic Names**: Prevent duplicates, special characters, validate length before adding
 - **Rapid Reassignments**: Debounce prototype updates, show loading state, prevent double-clicks
-- **Prototype Initialization**: Handle first-run state with default prototypes, seed data for demo
+- **API Rate Limiting**: Handle 429 responses gracefully, fall back to cached or mock data, notify user of limit
+- **Missing Article Images**: Cascade through World News API → Unsplash → placeholder generation with no UI disruption
+- **Mixed/No Sentiment Data**: Fall back to keyword-based classification when API sentiment unavailable
+- **Slow Network**: Show loading states, timeout after 10 seconds, fall back to mock data automatically
 
 ## Design Direction
 
