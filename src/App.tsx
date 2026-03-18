@@ -6,6 +6,7 @@ import { Header } from '@/components/Header'
 import { NewsFeed } from '@/components/NewsFeed'
 import { SettingsDialog } from '@/components/SettingsDialog'
 import { TopicSettingsDialog } from '@/components/TopicSettingsDialog'
+import { AnalyticsDashboard } from '@/components/AnalyticsDashboard'
 import { generateMockFeed } from '@/lib/mockFeedGenerator'
 import { fetchNewsForTopic, fetchLatestNews } from '@/lib/worldNewsApi'
 import type { NewsArticle, Topic, ClassificationLabel, AppSettings, ClassificationStats } from '@/types'
@@ -29,6 +30,7 @@ function App() {
   const [activeFilter, setActiveFilter] = useState<ClassificationLabel>('good')
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [topicSettingsOpen, setTopicSettingsOpen] = useState(false)
+  const [analyticsOpen, setAnalyticsOpen] = useState(false)
   const [selectedTopicForSettings, setSelectedTopicForSettings] = useState<string | null>(null)
 
   useEffect(() => {
@@ -168,7 +170,11 @@ function App() {
 
   return (
     <div className="h-screen flex flex-col bg-background cyber-grid">
-      <Header stats={stats} onOpenSettings={() => setSettingsOpen(true)} />
+      <Header 
+        stats={stats} 
+        onOpenSettings={() => setSettingsOpen(true)}
+        onOpenAnalytics={() => setAnalyticsOpen(true)}
+      />
       
       <div className="flex-1 flex overflow-hidden">
         <Sidebar
@@ -230,6 +236,13 @@ function App() {
         topic={topics?.find(t => t.id === selectedTopicForSettings) || null}
         onSave={handleTopicSettingsSave}
       />
+
+      {analyticsOpen && (
+        <AnalyticsDashboard
+          articles={articles || []}
+          onClose={() => setAnalyticsOpen(false)}
+        />
+      )}
 
       <Toaster 
         position="top-right"

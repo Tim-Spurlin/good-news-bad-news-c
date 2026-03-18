@@ -6,9 +6,10 @@ import type { ClassificationStats } from '@/types'
 interface HeaderProps {
   stats: ClassificationStats
   onOpenSettings: () => void
+  onOpenAnalytics: () => void
 }
 
-export function Header({ stats, onOpenSettings }: HeaderProps) {
+export function Header({ stats, onOpenSettings, onOpenAnalytics }: HeaderProps) {
   const accuracyPercent = stats.totalArticles > 0 
     ? Math.round((stats.avgConfidence * 100))
     : 0
@@ -70,6 +71,7 @@ export function Header({ stats, onOpenSettings }: HeaderProps) {
             <Button
               variant="outline"
               size="sm"
+              onClick={onOpenAnalytics}
               className="hover:bg-accent/10 hover:text-accent hover:border-accent transition-all"
             >
               <ChartLine size={18} weight="duotone" />
