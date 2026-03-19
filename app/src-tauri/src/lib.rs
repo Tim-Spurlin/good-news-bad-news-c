@@ -86,6 +86,29 @@ fn check_and_increment_api_usage() -> Result<u64, String> {
     Ok(0) // 0 wait time represents success
 }
 
+#[tauri::command]
+async fn fetch_secure_world_news(batch_size: u32) -> Result<serde_json::Value, String> {
+    dotenvy::dotenv().ok();
+    let api_key = std::env::var("WORLD_NEWS_API_KEY")
+        .map_err(|_| "WORLD_NEWS_API_KEY clearly missing securely from .env")?;
+        
+    let client = reqwest::Client::new();
+    // Use the official World News API securely without touching the proxy
+    let res = client.get("https://api.worldnewsapi.com/search-news")
+        .header("x-api-key", api_key)
+        .query(&[("number", batch_size.to_string()), ("language", "en".to_string())])
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+        
+    if !res.status().is_success() {
+        return Err(format!("API Request Failed: {}", res.status()));
+    }
+        
+    let json: serde_json::Value = res.json().await.map_err(|e| e.to_string())?;
+    Ok(json)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -95,7 +118,11 @@ pub fn run() {
             }
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![check_battery_status, check_and_increment_api_usage])
+        .invoke_handler(tauri::generate_handler![
+            check_battery_status, 
+            check_and_increment_api_usage,
+            fetch_secure_world_news
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
