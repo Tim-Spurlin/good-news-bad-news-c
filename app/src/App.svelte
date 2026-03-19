@@ -2,6 +2,8 @@
   import GlobeView from './lib/components/GlobeView.svelte';
 
   let viewMode = 'list'; // 'list' or 'globe'
+  let currentTab = 'main'; // 'main', 'good', 'bad'
+  let goodProportion = 50; // 50% Good, 50% Bad
 
   function toggleView() {
     viewMode = viewMode === 'list' ? 'globe' : 'list';
@@ -19,6 +21,11 @@
         <li><button class="topic-btn">Climate</button></li>
       </ul>
     </div>
+    <div class="settings">
+      <h2>Feed Settings</h2>
+      <label class="slider-label" for="feed-proportion">Main Feed Mix: {goodProportion}% Good</label>
+      <input id="feed-proportion" type="range" min="0" max="100" bind:value={goodProportion} class="slider" />
+    </div>
     <div class="view-toggle">
       <h2>View Mode</h2>
       <button class="toggle-btn" on:click={toggleView}>
@@ -32,24 +39,52 @@
   </div>
 
   <div class="content-area">
-    {#if viewMode === 'globe'}
-      <GlobeView />
-    {:else}
-      <div class="list-view-placeholder">
-        <h2>List View</h2>
-        <p>This is the standard infinite-scroll Good/Bad feed.</p>
-        <div class="article-card">
-          <h3>Breakthrough in Fusion Energy</h3>
-          <p class="summary">Scientists have achieved net-positive fusion...</p>
-          <span class="label good">Good News</span>
+    <div class="tabs-header">
+      <button class="tab-btn {currentTab === 'main' ? 'active' : ''}" on:click={() => currentTab = 'main'}>Main Feed</button>
+      <button class="tab-btn {currentTab === 'good' ? 'active' : ''}" on:click={() => currentTab = 'good'}>Only Good News</button>
+      <button class="tab-btn {currentTab === 'bad' ? 'active' : ''}" on:click={() => currentTab = 'bad'}>Only Bad News</button>
+    </div>
+
+    <div class="tab-content">
+      {#if viewMode === 'globe'}
+        <!-- svelte-ignore a11y_missing_attribute -->
+        <GlobeView {currentTab} {goodProportion} />
+      {:else}
+        <div class="list-view-placeholder">
+          <h2>{currentTab.toUpperCase()} NEWS</h2>
+          <p>The standard infinite-scroll feed will populate here based on user-learned votes, rather than auto-generation.</p>
+          
+          {#if currentTab === 'main' || currentTab === 'good'}
+          <div class="article-card">
+            <h3>Breakthrough in Fusion Energy</h3>
+            <p class="summary">Scientists have achieved net-positive fusion...</p>
+            <div class="vote-actions">
+              <span class="label good">Voted Good</span>
+            </div>
+          </div>
+          {/if}
+          
+          {#if currentTab === 'main' || currentTab === 'bad'}
+          <div class="article-card">
+            <h3>Storm Causes Major Outages</h3>
+            <p class="summary">Grid failures reported across the coast...</p>
+            <div class="vote-actions">
+              <span class="label bad">Voted Bad</span>
+            </div>
+          </div>
+          {/if}
+          
+          <div class="article-card unclassified">
+            <h3>Unclassified: New AI Agent Discovered</h3>
+            <p class="summary">A new native Wayland intelligence system is helping rewrite Rust code globally...</p>
+            <div class="vote-actions">
+              <button class="vote-btn btn-good">Vote Good</button>
+              <button class="vote-btn btn-bad">Vote Bad</button>
+            </div>
+          </div>
         </div>
-        <div class="article-card">
-          <h3>Storm Causes Major Outages</h3>
-          <p class="summary">Grid failures reported across the coast...</p>
-          <span class="label bad">Bad News</span>
-        </div>
-      </div>
-    {/if}
+      {/if}
+    </div>
   </div>
 </main>
 
@@ -130,6 +165,24 @@
     color: #6DD4F2;
   }
 
+  .settings {
+    padding: 20px;
+    border-top: 1px solid #353F5C;
+  }
+
+  .slider-label {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: #8b9bb4;
+    margin-bottom: 8px;
+  }
+
+  .slider {
+    width: 100%;
+    accent-color: #6DD4F2;
+  }
+
   .view-toggle {
     padding: 20px;
     border-top: 1px solid #353F5C;
@@ -166,9 +219,63 @@
 
   .content-area {
     flex-grow: 1;
-    position: relative;
+    display: flex;
+    flex-direction: column;
     background: #12141a;
   }
+
+  .tabs-header {
+    display: flex;
+    background: #1A1D26;
+    border-bottom: 1px solid #353F5C;
+    padding: 0 20px;
+  }
+
+  .tab-btn {
+    padding: 15px 20px;
+    background: transparent;
+    border: none;
+    color: #8b9bb4;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: bold;
+    font-size: 1.1rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+
+  .tab-btn:hover {
+    color: #e2e8f0;
+    background: rgba(255,255,255,0.05);
+  }
+
+  .tab-btn.active {
+    color: #6DD4F2;
+    border-bottom: 2px solid #6DD4F2;
+  }
+
+  .tab-content {
+    flex-grow: 1;
+    position: relative;
+    overflow: auto;
+  }
+
+  .vote-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+  }
+
+  .vote-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: 'Rajdhani', sans-serif;
+  }
+  .btn-good { background: #00ff80; color: #1a1d26; }
+  .btn-bad { background: #ff4040; color: #1a1d26; }
 
   .list-view-placeholder {
     padding: 40px;

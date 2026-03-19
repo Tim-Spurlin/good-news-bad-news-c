@@ -421,30 +421,18 @@
     }
   }
 
-  async function handleReassign(good: boolean) {
+  function handleVote(good: boolean) {
     if (!activeArticle) return;
-    try {
-      const res = await fetch(`${PROXY_URL}/update-survival-prototype`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${API_TOKEN}`
-        },
-        body: JSON.stringify({
-          article_id: activeArticle.id,
-          reassigned_label: good ? 'good' : 'bad'
-        })
-      });
-      if (res.ok) {
-        activeArticle.good = good;
-        createPins(); // Update colors
-        showModal = false;
-        alert('Reassigned successfully.');
-      }
-    } catch (e) {
-      console.error('Failed to reassign:', e);
-      alert('Proxy error. See console.');
+    
+    // Manual local learning: Update the article's state in-memory
+    const index = newsData.findIndex(a => a.id === activeArticle.id);
+    if (index !== -1) {
+      newsData[index].good = good;
     }
+    
+    // Close modal and instantly refresh the globe layout + proportional filters
+    showModal = false;
+    filterAndRebuildPins();
   }
 
   async function loadBorders() {
@@ -530,17 +518,19 @@
       <div class="modal-content" on:click|stopPropagation>
         <h2>{activeArticle.title}</h2>
         <div class="meta">
-          <span class="label {activeArticle.good ? 'good' : 'bad'}">
-            {activeArticle.good ? 'Good News' : 'Bad News'}
+          <span class="label {activeArticle.good === true ? 'good' : activeArticle.good === false ? 'bad' : 'unclassified'}">
+            {activeArticle.good === true ? 'Good News' : activeArticle.good === false ? 'Bad News' : 'Unclassified'}
           </span>
-          <span class="score">Confidence: {Math.round(activeArticle.score * 100)}%</span>
+          {#if activeArticle.score !== 0.5}
+            <span class="score">Confidence: {Math.round(activeArticle.score * 100)}%</span>
+          {/if}
         </div>
         <p>{activeArticle.summary}</p>
         
         <div class="actions">
-          <h3>Reassign Classification</h3>
-          <button class="btn btn-good" on:click={() => handleReassign(true)}>Mark Good</button>
-          <button class="btn btn-bad" on:click={() => handleReassign(false)}>Mark Bad</button>
+          <h3>User Voting</h3>
+          <button class="btn btn-good" on:click={() => handleVote(true)}>Vote Good</button>
+          <button class="btn btn-bad" on:click={() => handleVote(false)}>Vote Bad</button>
         </div>
         <button class="close-btn" on:click={() => showModal = false}>Close</button>
       </div>
@@ -627,8 +617,9 @@
     border-radius: 4px;
     font-weight: bold;
   }
-  .label.good { background: rgba(0, 255, 128, 0.2); color: #00ff80; }
-  .label.bad { background: rgba(255, 64, 64, 0.2); color: #ff4040; }
+  .label.good { background: rgba(0, 255, 128, 0.2); color: #00ff80; border: 1px solid rgba(0, 255, 128, 0.4); }
+  .label.bad { background: rgba(255, 64, 64, 0.2); color: #ff4040; border: 1px solid rgba(255, 64, 64, 0.4); }
+  .label.unclassified { background: rgba(255, 204, 0, 0.2); color: #ffcc00; border: 1px solid rgba(255, 204, 0, 0.4); }
   .score {
     padding: 4px 8px;
     background: rgba(255,255,255,0.1);
